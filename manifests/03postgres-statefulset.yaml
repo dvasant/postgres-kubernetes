@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres
+  name: postgres-database
   namespace: postgres
 spec:
   serviceName: postgres
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: postgres
@@ -16,10 +16,17 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:latest
-        envFrom:
-          - configMapRef:
-              name: postgres-config
+        image: postgres:11
+        env:
+        - name: POSTGRES_DB
+          value: postgres
+        - name: POSTGRES_USER
+          value: postgres   
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: postgres-creds
         ports:
         - containerPort: 5432
           name: postgredb
